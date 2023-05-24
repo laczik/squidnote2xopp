@@ -1,0 +1,7 @@
+check if output file exists and rename (or bail?)
+
+add arg option to adjust image scaling
+
+check for unknown input fields
+
+fix-up filename extensions

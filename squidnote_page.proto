@@ -1,0 +1,143 @@
+syntax = "proto3";
+
+// primary source of info:
+// java proto class files in outcfr/com/steadfastinnovation/papyrus/data/proto/
+
+enum SN_Background_Type {
+	SN_BT_UNDEFINED			= 0;
+	SN_BT_RULEDPAPER		= 1;
+	SN_BT_QUADPAPER			= 2;
+	SN_BT_BLANK				= 3;
+	SN_BT_PDF				= 4;
+	SN_BT_PAPYR				= 5;
+}
+
+enum SN_Stroke_Type {
+	SN_ST_UNDEFINED			= 0;
+	SN_ST_NORMAL			= 1;
+	SN_ST_LINE				= 2;
+	SN_ST_HIGHLIGHT			= 3;
+	SN_ST_SMOOTH			= 4;
+}
+
+enum SN_Item_Type {
+	SN_IT_UNDEFINED			= 0;
+	SN_IT_STROKE			= 1;
+	SN_IT_SHAPE				= 2;
+	SN_IT_TEXT				= 3;
+	SN_IT_IMAGE				= 4;
+}
+
+message SN_BG_Ruled {
+	float				line_spacing	= 1;
+	float				margin			= 2;
+	bool				show_margin		= 3;
+	float				line_weight		= 4;
+}
+
+message SN_BG_Quad {
+}
+
+message SN_BG_Blank {
+}
+
+message SN_BG_PDF {
+	string				id				= 1;	// have never actually seen this set
+	string				image_hash		= 2;	// have never actually seen this set
+
+	uint32				page_number		= 3;
+}
+
+message SN_BG_Papyr {
+}
+
+message SN_Background {
+	SN_Background_Type	type			= 1;
+
+	string				id				= 2;	// have never actually seen this set
+	string				image_hash		= 3;	// have never actually seen this set
+	
+	float				width			= 4;
+	float				height			= 5;
+	uint32				colour			= 6;
+	SN_BG_Ruled			ruled			= 1000;
+	SN_BG_Quad			quad			= 1001;
+	SN_BG_Blank			blank			= 1002;
+	SN_BG_PDF			pdf				= 1003;
+	SN_BG_Papyr			papyr			= 1004;
+}
+
+message SN_SP {
+	float				x				= 1;
+	float				y				= 2;
+}
+
+message SN_DP {
+	float				dx				= 1;
+	float				dy				= 2;
+	float				weight			= 3;
+}
+
+message SN_Rect {
+	int32				left			= 1;
+	int32				right			= 2;
+	int32				top				= 3;
+	int32				bottom			= 4;
+}
+
+message SN_RectF {
+	float				left			= 1 ;
+	float				right			= 2 ;
+	float				top				= 3 ;
+	float				bottom			= 4 ;
+}
+
+message SN_Stroke {
+	uint32				colour			= 1;
+	float				weight			= 2;
+	SN_SP				start			= 3;
+	repeated SN_DP		delta			= 4;
+	SN_RectF			bounds			= 5;
+	SN_Stroke_Type		type			= 6;
+	SN_RectF			f_bounds		= 7; 
+}
+
+message	SN_Shape {
+}
+
+message	SN_Text {
+}
+
+message	SN_Image {
+	string				id				= 1;
+	string				image_hash		= 2;
+	SN_RectF			bounds			= 3;
+	bool				flip_x			= 4;
+	bool				flip_y			= 5;
+	SN_Rect				crop_bounds		= 6 ;
+	int32				rotation		= 7;
+}
+
+message	SN_Ellipse {
+}
+
+message SN_Item {
+	SN_Item_Type		type			= 1;
+	oneof item {
+	SN_Stroke			stroke			= 1000;
+	SN_Shape			shape			= 1001;
+	SN_Text				text			= 1002;
+	SN_Image			image			= 1003;
+	}
+}
+
+message SN_Layer {
+	repeated SN_Item	 item			= 1;
+	SN_RectF			 f_bounds		= 2;
+}
+
+message SN_Page {
+	SN_Background		background		= 1;
+	repeated SN_Layer	layer			= 3;
+}
+

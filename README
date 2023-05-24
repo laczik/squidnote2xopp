@@ -1,0 +1,42 @@
+Program to convert SquidNote documents to Xournal++ format compressed XML files
+
+   Run "squidnote2xopp -h" for usage information
+
+Version 1.0.0 (2023-05-22)
+Copyright (c) 2023, ZJ Laczik    
+
+Please submit suggestions, feature requests and bug reports on https://github.com/laczik/
+
+---
+
+Some basic instructions:
+
+# get the program
+mkdir squidnote2xopp
+cd squidnote2xopp
+git clone https://github.com/laczik/squidnote2xopp
+
+# Make sure latest version of protobuf and opencv are installed (there may also be other missing dependencies)
+pip uninstall protobuf
+pip uninstall google
+pip install protobuf
+pip install opencv-python
+
+# Make sure the latest version of protoc is installed
+mkdir protoc
+cd protoc
+PROTOC_VERSION=$(curl -s "https://api.github.com/repos/protocolbuffers/protobuf/releases/latest" | grep -Po '"tag_name": "v\K[0-9.]+')
+curl -Lo protoc.zip "https://github.com/protocolbuffers/protobuf/releases/latest/download/protoc-${PROTOC_VERSION}-linux-x86_64.zip"
+unzip protoc.zip
+cd ..
+
+# If probuf definition squidnote_page.proto is modified, run
+PROTOC_DIR=./protoc                                           # change this to the directory where you installed protoc
+${PROTOC_DIR}/bin/protoc --python_out=. squidnote_page.proto
+
+# To test a new squidnote_page.proto, run (e.g.)
+cat 2d823151-11ab-4d9b-90d6-8de6e3ca9428.page | ${PROTOC_DIR}/bin/protoc --decode=SN_Page squidnote_page.proto
+
+To check for unknown fields, run (e.g.)
+  cat 2d823151-11ab-4d9b-90d6-8de6e3ca9428.page | ${PROTOC_DIR}/bin/protoc --decode_raw
+
