@@ -37,6 +37,6 @@ ${PROTOC_DIR}/bin/protoc --python_out=. squidnote_page.proto
 # To test a new squidnote_page.proto, run (e.g.)
 cat 2d823151-11ab-4d9b-90d6-8de6e3ca9428.page | ${PROTOC_DIR}/bin/protoc --decode=SN_Page squidnote_page.proto
 
-To check for unknown fields, run (e.g.)
-  cat 2d823151-11ab-4d9b-90d6-8de6e3ca9428.page | ${PROTOC_DIR}/bin/protoc --decode_raw
+# To check for unknown fields, run (e.g.)
+cat 2d823151-11ab-4d9b-90d6-8de6e3ca9428.page | ${PROTOC_DIR}/bin/protoc --decode_raw
 
