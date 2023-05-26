@@ -1,7 +1,6 @@
-check if output file exists and rename (or bail?)
+Add arg option to adjust image scaling
+Add options to change stroke and highlight weight scaling values
+Check if output file exists and rename (or bail?)
+Check for unknown input fields
+Fix-up filename extensions
 
-add arg option to adjust image scaling
-
-check for unknown input fields
-
-fix-up filename extensions

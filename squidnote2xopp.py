@@ -240,21 +240,22 @@ def generate_xournal_xml_doc( sn, xopp_doc, xopp_file, dry_run ) :
 	# extract page and pdf background IDs from sqlite3 database
 	page_and_pdf_ids = get_page_and_pdf_ids(sn)
 
-	print( page_and_pdf_ids )
-
 	# extract all PDFs from squidnote ZIP archive to separate files
 	# only keep pdf_ids at index 1 in each tuple
 	pdf_ids = list( set( [ a[1] for a in page_and_pdf_ids ] ) )
 	# cycle over all PDF file entries
 	if not dry_run :
 		for pdf_id in pdf_ids :
-			if pdf_id != None :
-				src = "data/docs/" + pdf_id
-				dest = xopp_file + '.' + pdf_id + '.pdf'
-				sn.getinfo(src).filename = dest
-				sn.extract(src)
-				mprint( f'Extracted background PDF from "data/docs" to "{dest}"', colour=CGREEN )
-
+			if pdf_id :
+				try :
+					src = "data/docs/" + pdf_id
+					dest = xopp_file + '.' + pdf_id + '.pdf'
+					sn.getinfo(src).filename = dest
+					sn.extract(src)
+					mprint( f'Extracted background PDF from "data/docs" to "{dest}"', colour=CGREEN )
+				except :
+					mprint( f'Failed to extract background PDF from "data/docs" to "{dest}"', colour=CRED )
+				
 	# generate XML header
 	mprint( 'Starting XML page description generation' )
 	xopp_doc.write( '<?xml version="1.0" standalone="no"?>' )
