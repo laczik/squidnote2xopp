@@ -4,7 +4,7 @@ Program to convert SquidNote documents to Xournal++ format compressed XML files
    Run "squidnote2xopp -h" for usage information
 Version 1.0.0 (2023-05-22)
 Copyright (c) 2023, ZJ Laczik    
-Please submit suggestions, feature requests and bug reports on Github: https://...
+Please submit suggestions, feature requests and bug reports on https://github.com/laczik
 """
 
 quiet = False
