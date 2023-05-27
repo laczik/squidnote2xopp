@@ -224,7 +224,7 @@ def check_for_unknown_fields( msg, indt='>>' ) :
 			pass
 
 ########################################
-def generate_xournal_xml_doc( sn, xopp_doc, xopp_file, dry_run ) :
+def generate_xournal_xml_doc( sn, xopp_doc, xopp_file, dry_run, stroke_scale, highlight_scale, image_dpi ) :
 	"""
 	- extract page and PDF IDs from squidnote sqlite3 database
 	- extract and save all PDF background files frm squidnote ZIp archive
@@ -347,10 +347,10 @@ def generate_xournal_xml_doc( sn, xopp_doc, xopp_file, dry_run ) :
 							case SNP.SN_Stroke_Type.SN_ST_NORMAL :
 								r,g,b,a = split_colour_channels( im.stroke.colour )
 								xopp_doc.write( f'<stroke tool="pen" ts="0" fn="" color="#{r:02x}{g:02x}{b:02x}{a:02x}"' )
-								w = 2.834645669 * im.stroke.weight
+								w = stroke_scale * 2.834645669 * im.stroke.weight
 								xopp_doc.write( f' width="{w:.3f}' )
 								for pt in im.stroke.delta :
-									w = 2.834645669 * pt.weight
+									w = stroke_scale * 2.834645669 * pt.weight
 									xopp_doc.write( f' {w:.3f}' )
 								xopp_doc.write( '">' )
 								ref_x = 28.34645669 * im.stroke.start.x
@@ -364,10 +364,10 @@ def generate_xournal_xml_doc( sn, xopp_doc, xopp_file, dry_run ) :
 							case SNP.SN_Stroke_Type.SN_ST_HIGHLIGHT :
 								r,g,b,a = split_colour_channels( im.stroke.colour )
 								xopp_doc.write( f'<stroke tool="highlighter" ts="0" fn="" color="#{r:02x}{g:02x}{b:02x}{a:02x}"' )
-								w = 28.34645669 * im.stroke.weight
+								w = highlight_scale * 28.34645669 * im.stroke.weight
 								xopp_doc.write( f' width="{w:.3f}' )
 								for pt in im.stroke.delta :
-									w = 28.34645669 * pt.weight
+									w = highlight_scale * 28.34645669 * pt.weight
 									xopp_doc.write( f' {w:.3f}' )
 								xopp_doc.write( '">' )
 								ref_x = 28.34645669 * im.stroke.start.x
@@ -428,7 +428,16 @@ def generate_xournal_xml_doc( sn, xopp_doc, xopp_file, dry_run ) :
 								cvimg = cv2.rotate( cvimg, cv2.ROTATE_90_COUNTERCLOCKWISE )
 							case _ :
 								mprint( f'Image rotation angle {im.image.rotation} is not supported', colour=CYELLOW )
-						cvimg = cv2.resize( cvimg, None, fx=0.1, fy=0.1 )
+						# image_dpi
+						current_x_dpi = 72.0 * (cr-cl) / (r-l)
+						current_y_dpi = 72.0 * (cb-ct)/(b-t)
+						x_scale = min( 1.0, image_dpi / current_x_dpi )
+						y_scale = min( 1.0, image_dpi / current_y_dpi )
+
+#						print( x_scale, y_scale )
+
+						cvimg = cv2.resize( cvimg, None, fx=x_scale, fy=y_scale )
+#						cvimg = cv2.resize( cvimg, None, fx=0.1, fy=0.1 )
 						enc_img = cv2.imencode('.png', cvimg)
 						b64_string = base64.encodebytes( enc_img[1]).decode('utf-8' )
 
@@ -464,11 +473,14 @@ def main( ) :
 		epilog='Please submit buf reports on GitHub (link to be provided)'
 		)
 
-	parser.add_argument( "-f", "--filename",	action='store',			help='Input/output file base name', required=True )
-	parser.add_argument( "-x", "--xml",			action='store_true',	help='Generate XML file' )
-	parser.add_argument( "-n", "--dry-run",		action='store_true',	help='Do not write any files' )
-	parser.add_argument( "-v", "--version",		action='store_true',	help='About' )
-	parser.add_argument( "-q", "--quiet",		action='store_true',	help='Disable progress reporting' )
+	parser.add_argument( "-f", "--filename",		action='store',			help='Input/output file base name', 	required=True )
+	parser.add_argument( "-s", "--stroke-scale",	action='store',			help='Scale stroke width [1.0]', 		default=1.0, type=float )
+	parser.add_argument( "-l", "--highlight-scale",	action='store',			help='Scale highlight width [1.0]',		default=1.0, type=float )
+	parser.add_argument( "-d", "--image-dpi",		action='store',			help='DPI for embedded images [150]',	default=150, type=int )
+	parser.add_argument( "-x", "--xml",				action='store_true',	help='Generate XML file [false]' )
+	parser.add_argument( "-n", "--dry-run",			action='store_true',	help='Do not write any files [false]' )
+	parser.add_argument( "-v", "--version",			action='store_true',	help='About' )
+	parser.add_argument( "-q", "--quiet",			action='store_true',	help='Disable progress reporting [false]' )
 
 	args = parser.parse_args()
 
@@ -499,7 +511,7 @@ def main( ) :
 	mprint( f'Opened squidnote document archive "{sn_file}"' )
 
 	# call to generate XML components
-	generate_xournal_xml_doc(sn, xopp_doc, xopp_file, args.dry_run )
+	generate_xournal_xml_doc(sn, xopp_doc, xopp_file, args.dry_run, args.stroke_scale, args.highlight_scale, args.image_dpi)
 
 	if not args.dry_run :
 		# save gzip compressed Xournal++ document
